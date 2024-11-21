@@ -6,9 +6,15 @@ class Persona{
   var salarioFijo
   var cuotasAPagar = []
 
+  method cosasAdquiridas() = cosasAdquiridas.size() 
+
   method cambiarFormaDepagoFavorita(formaDePago){
-    formaFavorita = formaDePago
+    if(self.esaFormaDePagoLaTengo(formaDePago)){
+      formaFavorita = formaDePago
+    }
   }
+
+  method esaFormaDePagoLaTengo(formaDePago) = formasDePago.contains(formaDePago)
 
   method efectivo() = efectivo
 
@@ -90,6 +96,8 @@ class CuentaBancaria{
   method verificarCompra(usuario,cosa) {}
 
   method realizarCompra(usuario,cosa) {}
+
+  method personaQueMasCosasCompro() = propietarios.max({propietario=>propietario.cosasAdquiridas()})
 }
 
 class TarjetaDeDebito inherits CuentaBancaria{

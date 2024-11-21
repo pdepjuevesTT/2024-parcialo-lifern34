@@ -4,14 +4,20 @@ class Persona{
   const cosasAdquiridas = []
   var efectivo // ojo con esto, puede que lo tenga el metodo de pago efectivo
   var salarioFijo
+  var cuotasAPagar = []
+
+  method cambiarFormaDepagoFavorita(formaDePago){
+    formaFavorita = formaDePago
+  }
+
+  method efectivo() = efectivo
+
   
 
-  method efectivo() = efectivo 
-
-  method comprar(medioDePago,cosa) {
-    if(medioDePago.verificarCompra(self,cosa)){
+  method comprar(cosa) {
+    if(formaFavorita.verificarCompra(self,cosa)){
       self.obtenerCompra(cosa)
-      medioDePago.realizarCompra(self,cosa)
+      formaFavorita.realizarCompra(self,cosa)
     }
   }
 
@@ -23,15 +29,35 @@ class Persona{
     efectivo -= valor
   }
 
-  method pagarCuotaMesSiguiente() {
+  method pagarCuotaMesSiguiente(valor) {
     self.cobrarSalario()
-    if(){
-
+    self.reducirTodasLasCuotasCorrespondientes(valor)
+    if(salarioFijo > 0){
+      self.guardarSalario()
     }
   }
 
-  method cobrarSalario() = salarioFijo
+  method reducirTodasLasCuotasCorrespondientes(valor){
+    cuotasAPagar.map({cuota=>cuota.reducirMontoTotalDeCuotas(valor)})
+  }
   
+  method guardarSalario() {
+    efectivo += salarioFijo
+  }
+
+  method cobrarSalario(){
+    salarioFijo += salarioFijo
+  }
+
+  method restarSalario(valorCuota) {
+    salarioFijo -= valorCuota
+  }
+
+  method agregarMontoTotalPendiente(monto) = cuotasAPagar.add(monto)
+  
+  method reducirMontoTotalDeCuotas(valor) {
+    self.restarSalario(valor)
+    }
 }
 
 class Cosa {
@@ -39,9 +65,6 @@ class Cosa {
 
   method precio() = precio 
 }
-
-// class FormaDePago { // ver si hay que hacer un objeto
-// }
 
 object enEfectivo{
 
@@ -82,16 +105,16 @@ class TarjetaDeDebito inherits CuentaBancaria{
   method debitarElMonto(valor) {
     saldo -= valor
   }
-
 }
 
 class TarjetaDeCredito inherits CuentaBancaria{
 
-  var cantidadDeCuotas
+  var cantidadDeCuotas 
 
   override method verificarCompra(usuario,cosa) =  cosa.precio() <= montoPermitido
 
   override method realizarCompra(usuario,cosa){
+    usuario.agregarMontoTotalPendiente(self.valorTotalAPagar(cosa))
     usuario.pagarCuotaAlMesSiguiente(self.cuotaMensual(cosa))
   }
 
@@ -99,14 +122,3 @@ class TarjetaDeCredito inherits CuentaBancaria{
 
   method valorTotalAPagar(cosa) = cosa.precio() * (1 + (tasaEstablecidaPorBanco/100))
 }
-
-// cuenta y la tarjeta son lo mismo
-// pagar mes actual y mes anterior de lo que falto por pagar
-// pagar cuota se paga con lo del efectivo y lo que cobro del sueldo
-
-// class banco
-
-// HACER 2 TEST, de una compra en cuotas y otro de un cobro de sueldo
-
-
-// EL SALDO, ES EL EFECTIVO? El debito se paga con el saldo de la cuenta o con el efectivo? 

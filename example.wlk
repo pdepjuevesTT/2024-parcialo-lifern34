@@ -2,7 +2,7 @@ class Persona{
   var formasDePago = []
   var formaFavorita
   const cosasAdquiridas = []
-  var efectivo // ojo con esto, puede que lo tenga el metodo de pago efectivo
+  var efectivo
   var salarioFijo
   var cuotasAPagar = []
 
@@ -12,7 +12,7 @@ class Persona{
 
   method efectivo() = efectivo
 
-  
+  method montoTotalCuotasPendientes() = cuotasAPagar.sum()
 
   method comprar(cosa) {
     if(formaFavorita.verificarCompra(self,cosa)){
@@ -121,4 +121,25 @@ class TarjetaDeCredito inherits CuentaBancaria{
   method cuotaMensual(cosa) = self.valorTotalAPagar(cosa) / cantidadDeCuotas
 
   method valorTotalAPagar(cosa) = cosa.precio() * (1 + (tasaEstablecidaPorBanco/100))
+}
+
+class CompradorCompulsivo inherits Persona{
+  
+  override method comprar(cosa) {
+    super(cosa)
+    if(not self.verificarCompraFueRealizada(cosa)){
+      self.buscarOtraFormaDePago(cosa).forEach({forma=>forma.comprar(cosa)})
+    }
+  }
+
+  method buscarOtraFormaDePago(cosa) {
+    const formasAlternativas = formasDePago.filter({formaDePago=>formaDePago.verificarCompra(self, cosa)})
+    return formasAlternativas
+  }
+
+  method verificarCompraFueRealizada(cosa) = cosasAdquiridas.contains(cosa)
+}
+
+class PagadorCompulsivo inherits Persona{
+  
 }

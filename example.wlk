@@ -123,6 +123,27 @@ class TarjetaDeCredito inherits CuentaBancaria{
   method valorTotalAPagar(cosa) = cosa.precio() * (1 + (tasaEstablecidaPorBanco/100))
 }
 
+class TarjetaLocaDeDescuento inherits TarjetaDeCredito {
+  var comprasRegistradas
+  const descuentoExtraordinario
+  
+  override method realizarCompra(usuario,cosa) {
+    super(usuario,cosa)
+    self.aumentarRegistro()
+    if(self.hacerDescuentoExcepcional()){
+      self.aplicarDescuento(cosa)
+    }
+  }
+
+  method hacerDescuentoExcepcional() = comprasRegistradas.sum() > 1000000 
+
+  method aplicarDescuento(cosa) = self.valorTotalAPagar(cosa) - ((descuentoExtraordinario/100) * self.valorTotalAPagar(cosa))
+
+  method aumentarRegistro() {
+    comprasRegistradas += 1
+  }
+}
+
 class CompradorCompulsivo inherits Persona{
   
   override method comprar(cosa) {
